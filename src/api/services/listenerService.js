@@ -9,7 +9,7 @@ const createListener = async (username, email) => {
   return {
     message: result.response
       ? "Listener created."
-      : "Listened cannot be created",
+      : "Listener cannot be created",
     error: result.error ? result.error.stack : undefined,
   };
 };
@@ -19,13 +19,17 @@ const getListener = async (username, email) => {
   const queryText =
     "SELECT * FROM listener" + ' WHERE username = $1 AND "e-mail" = $2;';
   const result = await db.queryP(queryText, [username, email]);
-
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Listener cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows[0] ? "Listener returned." : "Listener not found";
   return {
-    listener: result.response ? result.response.rows[0] : undefined,
-    message: result.response
-      ? "Listener returned."
-      : "Listened cannot be returned",
-    error: result.error ? result.error.stack : undefined,
+    listener: response.rows[0],
+    message,
   };
 };
 export default {

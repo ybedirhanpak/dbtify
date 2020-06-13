@@ -1,13 +1,13 @@
 import { Router } from "express";
-import listenerService from "../services/listenerService";
+import artistService from "../services/artistService";
 import errors from "../helpers/errors";
 
 const route = Router();
 
 route.post("/create", async (req, res) => {
   try {
-    const { username, email } = req.body;
-    const result = await listenerService.createListener(username, email);
+    const { name, surname } = req.body;
+    const result = await artistService.createArtist(name, surname);
     if (result.error) {
       res.status(400).send(result);
     } else {
@@ -21,9 +21,9 @@ route.post("/create", async (req, res) => {
 
 route.post("/login", async (req, res) => {
   try {
-    const { username, email } = req.body;
-    const result = await listenerService.getListener(username, email);
-    if (!result.listener || result.error) {
+    const { name, surname } = req.body;
+    const result = await artistService.getArtist(name, surname);
+    if (!result.artist || result.error) {
       res.status(404).send(result);
     } else {
       res.send(result);
