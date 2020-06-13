@@ -1,6 +1,6 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import api from './api/index';
+import express from "express";
+import bodyParser from "body-parser";
+import api from "./src/api/index";
 
 const app = express();
 
@@ -8,8 +8,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(express.static('public'));
-app.use('/api', api);
+app.use(express.static("public"));
+app.use("/api", api);
 
 const port = process.env.PORT || 3000;
 
