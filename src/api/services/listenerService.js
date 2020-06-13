@@ -15,7 +15,7 @@ const createListener = async (username, email) => {
 };
 
 const getListener = async (username, email) => {
-  console.log("** CREATE LISTENER **");
+  console.log("** GET LISTENER **");
   const queryText =
     "SELECT * FROM listener" + ' WHERE username = $1 AND "e-mail" = $2;';
   const result = await db.queryP(queryText, [username, email]);
