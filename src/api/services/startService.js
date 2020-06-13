@@ -24,11 +24,11 @@ const createArtistTable = async () => {
     "surname VARCHAR(128) NOT NULL," +
     "PRIMARY KEY (name,surname)" +
     ");";
-  const result = db.queryP(queryText);
+  const result = await db.queryP(queryText);
   return {
     message: result.response
-      ? "Listener table created."
-      : "Listener table cannot be created. ( Check error logs )",
+      ? "Artist table created."
+      : "Artist table cannot be created. ( Check error logs )",
     error: result.error ? result.error.stack : undefined,
   };
 };
@@ -42,11 +42,11 @@ const createSongTable = async () => {
     "albumID integer NOT NULL," +
     "likes integer NOT NULL" +
     ");";
-  const result = db.queryP(queryText);
+  const result = await db.queryP(queryText);
   return {
     message: result.response
-      ? "Listener table created."
-      : "Listener table cannot be created. ( Check error logs )",
+      ? "Song table created."
+      : "Song table cannot be created. ( Check error logs )",
     error: result.error ? result.error.stack : undefined,
   };
 };
@@ -60,11 +60,11 @@ const createAlbumTable = async () => {
     "genre VARCHAR(128) NOT NULL," +
     "artistID integer NOT NULL" +
     ");";
-  const result = db.queryP(queryText);
+  const result = await db.queryP(queryText);
   return {
     message: result.response
-      ? "Listener table created."
-      : "Listener table cannot be created. ( Check error logs )",
+      ? "Album table created."
+      : "Album table cannot be created. ( Check error logs )",
     error: result.error ? result.error.stack : undefined,
   };
 };
