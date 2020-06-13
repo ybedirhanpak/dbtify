@@ -1,13 +1,13 @@
 import { Router } from "express";
-import songService from "../services/songService";
+import albumService from "../services/albumService";
 import errors from "../helpers/errors";
 
 const route = Router();
 
 route.post("/create", async (req, res) => {
   try {
-    const { title, albumID } = req.body;
-    const result = await songService.createSong(title, albumID);
+    const { title, genre, artistID } = req.body;
+    const result = await albumService.createAlbum(title, genre, artistID);
     if (result.error) {
       res.status(400).send(result);
     } else {
@@ -22,8 +22,8 @@ route.post("/create", async (req, res) => {
 route.get("/get/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await songService.getSong(id);
-    if (!result.song || result.error) {
+    const result = await albumService.getAlbum(id);
+    if (!result.album || result.error) {
       res.status(400).send(result);
     } else {
       res.send(result);
@@ -36,8 +36,8 @@ route.get("/get/:id", async (req, res) => {
 
 route.get("/getAll", async (req, res) => {
   try {
-    const result = await songService.getAllSongs();
-    if (!result.songs || result.error) {
+    const result = await albumService.getAllAlbums();
+    if (!result.albums || result.error) {
       res.status(400).send(result);
     } else {
       res.send(result);

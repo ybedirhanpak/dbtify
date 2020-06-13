@@ -24,7 +24,7 @@ route.post("/login", async (req, res) => {
     const { username, email } = req.body;
     const result = await listenerService.getListener(username, email);
     if (!result.listener || result.error) {
-      res.status(404).send(result);
+      res.status(400).send(result);
     } else {
       res.send(result);
     }

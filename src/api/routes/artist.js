@@ -24,7 +24,7 @@ route.post("/login", async (req, res) => {
     const { name, surname } = req.body;
     const result = await artistService.getArtist(name, surname);
     if (!result.artist || result.error) {
-      res.status(404).send(result);
+      res.status(400).send(result);
     } else {
       res.send(result);
     }

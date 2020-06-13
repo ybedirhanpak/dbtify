@@ -4,7 +4,8 @@ const createListenerTable = async () => {
   console.log("** CREATE LISTENER TABLE **");
   const queryText =
     "CREATE TABLE listener(" +
-    "username VARCHAR(128) PRIMARY KEY," +
+    "id serial PRIMARY KEY," +
+    "username VARCHAR(128) UNIQUE NOT NULL," +
     '"e-mail" VARCHAR(128) UNIQUE NOT NULL' +
     ");";
   const result = await db.queryP(queryText);
@@ -20,9 +21,10 @@ const createArtistTable = async () => {
   console.log("** CREATE ARTIST TABLE **");
   const queryText =
     "CREATE TABLE artist(" +
+    "id serial PRIMARY KEY," +
     "name VARCHAR(128) NOT NULL," +
     "surname VARCHAR(128) NOT NULL," +
-    "PRIMARY KEY (name,surname)" +
+    "UNIQUE (name,surname)" +
     ");";
   const result = await db.queryP(queryText);
   return {

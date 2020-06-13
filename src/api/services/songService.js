@@ -31,7 +31,7 @@ const getSong = async (id) => {
 };
 
 const getAllSongs = async () => {
-  console.log("** GET SONG **");
+  console.log("** GET ALL SONGS **");
   const queryText = "SELECT * FROM song";
   const result = await db.queryP(queryText);
   const { response, error } = result;
