@@ -32,7 +32,27 @@ const getListener = async (username, email) => {
     message,
   };
 };
+
+const getAllListeners = async () => {
+  console.log("** GET ALL LISTENERS **");
+  const queryText = "SELECT * FROM listener";
+  const result = await db.queryP(queryText);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Listeners cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows ? "Listeners returned." : "Listeners not found";
+  return {
+    listeners: response.rows,
+    message,
+  };
+};
+
 export default {
   createListener,
   getListener,
+  getAllListeners,
 };

@@ -29,7 +29,27 @@ const getArtist = async (name, surname) => {
     message,
   };
 };
+
+const getAllArtists = async () => {
+  console.log("** GET ALL ARTISTS **");
+  const queryText = "SELECT * FROM artist";
+  const result = await db.queryP(queryText);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Artists cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows ? "Artists returned." : "Artists not found";
+  return {
+    artists: response.rows,
+    message,
+  };
+};
+
 export default {
   createArtist,
   getArtist,
+  getAllArtists,
 };

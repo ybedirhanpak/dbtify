@@ -34,4 +34,18 @@ route.post("/login", async (req, res) => {
   }
 });
 
+route.get("/getAll", async (req, res) => {
+  try {
+    const result = await artistService.getAllArtists();
+    if (!result.artists || result.error) {
+      res.status(400).send(result);
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errors.InternalServerError(error));
+  }
+});
+
 export default route;
