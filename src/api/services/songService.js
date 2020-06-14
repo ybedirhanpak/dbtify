@@ -117,6 +117,24 @@ const getSongsWithArtist = async (id) => {
   };
 };
 
+const getSongsWithAlbum = async (id) => {
+  console.log("** GET ALL SONGS WITH ALBUM **");
+  const queryText = "SELECT * FROM song" + " WHERE albumid = $1";
+  const result = await db.queryP(queryText, [id]);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Songs cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows ? "Songs returned." : "Songs not found";
+  return {
+    songs: response.rows,
+    message,
+  };
+};
+
 export default {
   createSong,
   getSong,
@@ -124,4 +142,5 @@ export default {
   updateSong,
   deleteSong,
   getSongsWithArtist,
+  getSongsWithAlbum,
 };

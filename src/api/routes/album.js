@@ -1,6 +1,7 @@
 import { Router } from "express";
 import albumService from "../services/albumService";
 import errors from "../helpers/errors";
+import songService from "../services/songService";
 
 const route = Router();
 
@@ -69,6 +70,21 @@ route.post("/delete/:id", async (req, res) => {
     const { id } = req.params;
     const result = await albumService.deleteAlbum(id);
     if (result.error) {
+      res.status(400).send(result);
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errors.InternalServerError(error));
+  }
+});
+
+route.get("/getSongs/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await songService.getSongsWithAlbum(id);
+    if (!result.songs || result.error) {
       res.status(400).send(result);
     } else {
       res.send(result);
