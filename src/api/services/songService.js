@@ -37,10 +37,10 @@ const createSong = async (title, albumID, producerIDs) => {
   };
 };
 
-const getSong = async (id) => {
+const getSong = async (songID) => {
   console.log("** GET SONG **");
   const queryText = "SELECT * FROM song" + " WHERE id = $1";
-  const result = await db.queryP(queryText, [id]);
+  const result = await db.queryP(queryText, [songID]);
   const { response, error } = result;
   if (error) {
     return {
@@ -73,10 +73,10 @@ const getAllSongs = async () => {
   };
 };
 
-const updateSong = async (id, title) => {
+const updateSong = async (songID, title) => {
   console.log("** UPDATE SONG **");
   const queryText = "UPDATE song" + " SET title = $2" + " WHERE id = $1";
-  const result = await db.queryP(queryText, [id, title]);
+  const result = await db.queryP(queryText, [songID, title]);
 
   return {
     message: result.response ? "Song updated." : "Song cannot be updated",
@@ -84,10 +84,10 @@ const updateSong = async (id, title) => {
   };
 };
 
-const deleteSong = async (id) => {
+const deleteSong = async (songID) => {
   console.log("** DELETE SONG **");
   const queryText = "DELETE from song" + " WHERE id = $1";
-  const result = await db.queryP(queryText, [id]);
+  const result = await db.queryP(queryText, [songID]);
 
   return {
     message: result.response ? "Song deleted." : "Song cannot be deleted.",
@@ -95,14 +95,14 @@ const deleteSong = async (id) => {
   };
 };
 
-const getSongsOfArtist = async (id) => {
+const getSongsOfArtist = async (songID) => {
   console.log("** GET ALL SONGS OF ARTIST **");
   const queryText =
     "SELECT song.id, title, likes, albumid" +
     ' FROM "artist-song-produce"' +
     " INNER JOIN song ON song.id = songid" +
     " WHERE artistid = $1;";
-  const result = await db.queryP(queryText, [id]);
+  const result = await db.queryP(queryText, [songID]);
   const { response, error } = result;
   if (error) {
     return {
@@ -117,10 +117,10 @@ const getSongsOfArtist = async (id) => {
   };
 };
 
-const getSongsWithAlbum = async (id) => {
+const getSongsWithAlbum = async (songID) => {
   console.log("** GET ALL SONGS WITH ALBUM **");
   const queryText = "SELECT * FROM song" + " WHERE albumid = $1";
-  const result = await db.queryP(queryText, [id]);
+  const result = await db.queryP(queryText, [songID]);
   const { response, error } = result;
   if (error) {
     return {
@@ -132,6 +132,44 @@ const getSongsWithAlbum = async (id) => {
   return {
     songs: response.rows,
     message,
+  };
+};
+
+const incrementLike = async (songID, listenerID) => {
+  console.log("** ADD LIKE SONG**");
+  const queryText =
+    "UPDATE song" +
+    " SET likes = likes + 1 " +
+    " WHERE id = $1 AND id NOT IN (" +
+    " SELECT songid" +
+    ' FROM "listener-song-like"' +
+    " WHERE listenerid = $2" +
+    ");";
+  const result = await db.queryP(queryText, [songID, listenerID]);
+
+  return {
+    message: result.response ? "Song updated." : "Song cannot be updated",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
+const incrementLikeInAlbum = async (albumID, listenerID) => {
+  console.log("** ADD LIKE SONGS IN ALBUM **");
+  const queryText =
+    "UPDATE song" +
+    " SET likes = likes + 1" +
+    " WHERE albumid = $1 AND id NOT IN (" +
+    " SELECT songid" +
+    ' FROM "listener-song-like"' +
+    " WHERE listenerid = $2" +
+    ");";
+  const result = await db.queryP(queryText, [albumID, listenerID]);
+
+  return {
+    message: result.response
+      ? "Songs Liked."
+      : "Songs cannot be liked. (check error logs)",
+    error: result.error ? result.error.stack : undefined,
   };
 };
 
@@ -143,4 +181,6 @@ export default {
   deleteSong,
   getSongsOfArtist,
   getSongsWithAlbum,
+  incrementLike,
+  incrementLikeInAlbum,
 };

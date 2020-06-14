@@ -3,8 +3,8 @@ import db from "../../database";
 const createAlbum = async (title, genre, artistID) => {
   console.log("** CREATE ALBUM **");
   const queryText =
-    "INSERT INTO album(title,genre,artistID)" + " VALUES($1,$2,$3);";
-  const result = await db.queryP(queryText, [title, genre, artistID]);
+    "INSERT INTO album(title,genre,artistID,likes)" + " VALUES($1,$2,$3,$4);";
+  const result = await db.queryP(queryText, [title, genre, artistID, 0]);
 
   return {
     message: result.response ? "Album created." : "Album cannot be created",
@@ -89,6 +89,24 @@ const getAlbumsOfArtist = async (id) => {
   };
 };
 
+const incrementLike = async (albumID, listenerID) => {
+  console.log("** INCREMENT LIKE ALBUM**");
+  const queryText =
+    "UPDATE album" +
+    " SET likes = likes + 1 " +
+    " WHERE id = $1 AND id NOT IN (" +
+    " SELECT albumid" +
+    ' FROM "listener-album-like"' +
+    " WHERE listenerid = $2" +
+    ");";
+  const result = await db.queryP(queryText, [albumID, listenerID]);
+
+  return {
+    message: result.response ? "Song updated." : "Song cannot be updated",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
 export default {
   createAlbum,
   getAlbum,
@@ -96,4 +114,5 @@ export default {
   updateAlbum,
   deleteAlbum,
   getAlbumsOfArtist,
+  incrementLike,
 };

@@ -42,6 +42,7 @@ const createAlbumTable = async () => {
     "ID serial PRIMARY KEY," +
     "title VARCHAR(128) NOT NULL," +
     "genre VARCHAR(128) NOT NULL," +
+    "likes int NOT NULL," +
     "artistID integer NOT NULL REFERENCES artist (id)" +
     ");";
   const result = await db.queryP(queryText);
@@ -77,7 +78,8 @@ const createListenerSongLikeTable = async () => {
     'CREATE TABLE "listener-song-like"(' +
     "ID serial PRIMARY KEY," +
     "listenerID integer NOT NULL REFERENCES listener (id) ON DELETE CASCADE," +
-    "songID integer NOT NULL REFERENCES song (id) ON DELETE CASCADE" +
+    "songID integer NOT NULL REFERENCES song (id) ON DELETE CASCADE," +
+    "UNIQUE (listenerID,songID)" +
     ");";
   const result = await db.queryP(queryText);
   return {
@@ -94,7 +96,8 @@ const createListenerAlbumLikeTable = async () => {
     'CREATE TABLE "listener-album-like"(' +
     "ID serial PRIMARY KEY," +
     "listenerID integer NOT NULL REFERENCES listener (id) ON DELETE CASCADE," +
-    "albumID integer NOT NULL REFERENCES album (id) ON DELETE CASCADE" +
+    "albumID integer NOT NULL REFERENCES album (id) ON DELETE CASCADE," +
+    "UNIQUE (listenerID,albumID)" +
     ");";
   const result = await db.queryP(queryText);
   return {
@@ -111,7 +114,8 @@ const createArtistSongProduceTable = async () => {
     'CREATE TABLE "artist-song-produce"(' +
     "ID serial PRIMARY KEY," +
     "artistID integer NOT NULL REFERENCES artist (id) ON DELETE CASCADE," +
-    "songID integer NOT NULL REFERENCES song (id) ON DELETE CASCADE" +
+    "songID integer NOT NULL REFERENCES song (id) ON DELETE CASCADE," +
+    "UNIQUE (artistID,songID)" +
     ");";
   const result = await db.queryP(queryText);
   return {

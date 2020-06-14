@@ -65,14 +65,14 @@ const getArtist = async (id) => {
   const message = artist ? "Artist returned." : "Artist not found";
 
   const albumResult = await albumService.getAlbumsOfArtist(id);
-  if (!albumResult.error) {
+  if (!albumResult.error && artist) {
     artist.albums = albumResult.albums;
   } else {
     console.log(albumResult.error);
   }
 
   const songResult = await songService.getSongsOfArtist(id);
-  if (!songResult.error) {
+  if (!songResult.error && artist) {
     artist.songs = songResult.songs;
   } else {
     console.log(songResult.error);

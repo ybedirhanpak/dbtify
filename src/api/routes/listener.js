@@ -48,4 +48,34 @@ route.get("/getAll", async (req, res) => {
   }
 });
 
+route.post("/likeSong", async (req, res) => {
+  try {
+    const { listenerID, songID } = req.body;
+    const result = await listenerService.likeSong(listenerID, songID);
+    if (result.error) {
+      res.status(400).send(result);
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errors.InternalServerError(error));
+  }
+});
+
+route.post("/likeAlbum", async (req, res) => {
+  try {
+    const { listenerID, albumID } = req.body;
+    const result = await listenerService.likeAlbum(listenerID, albumID);
+    if (result.error) {
+      res.status(400).send(result);
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errors.InternalServerError(error));
+  }
+});
+
 export default route;
