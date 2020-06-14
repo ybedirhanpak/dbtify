@@ -48,8 +48,32 @@ const getAllSongs = async () => {
   };
 };
 
+const updateSong = async (id, title) => {
+  console.log("** UPDATE SONG **");
+  const queryText = "UPDATE song" + " SET title = $2" + " WHERE id = $1";
+  const result = await db.queryP(queryText, [id, title]);
+
+  return {
+    message: result.response ? "Song updated." : "Song cannot be updated",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
+const deleteSong = async (id) => {
+  console.log("** DELETE SONG **");
+  const queryText = "DELETE from song" + " WHERE id = $1";
+  const result = await db.queryP(queryText, [id]);
+
+  return {
+    message: result.response ? "Song deleted." : "Song cannot be deleted.",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
 export default {
   createSong,
   getSong,
   getAllSongs,
+  updateSong,
+  deleteSong,
 };
