@@ -35,10 +35,10 @@ const login = async (name, surname) => {
 const getAllArtists = async () => {
   console.log("** GET ALL ARTISTS **");
   const queryText =
-    "SELECT a.id, a.name, a.surname, SUM(s.likes) as likes" +
+    "SELECT a.id, a.name, a.surname, COALESCE(SUM(s.likes),0) as likes" +
     " FROM artist AS a" +
-    ' INNER JOIN "artist-song-produce" AS asp on a.id = asp.artistid' +
-    " INNER JOIN song AS s on asp.songid = s.id" +
+    ' LEFT JOIN "artist-song-produce" AS asp on a.id = asp.artistid' +
+    " LEFT JOIN song AS s on asp.songid = s.id" +
     " GROUP BY a.id" +
     " ORDER BY likes DESC;";
 
