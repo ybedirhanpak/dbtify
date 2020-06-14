@@ -48,6 +48,21 @@ route.get("/getAll", async (req, res) => {
   }
 });
 
+route.post("/search/", async (req, res) => {
+  try {
+    const { keyword } = req.body;
+    const result = await songService.searchSongs(keyword);
+    if (!result.songs || result.error) {
+      res.status(400).send(result);
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errors.InternalServerError(error));
+  }
+});
+
 route.post("/update/:id", async (req, res) => {
   try {
     const { title } = req.body;

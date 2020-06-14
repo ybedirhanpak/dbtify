@@ -34,7 +34,14 @@ const login = async (name, surname) => {
 
 const getAllArtists = async () => {
   console.log("** GET ALL ARTISTS **");
-  const queryText = "SELECT * FROM artist";
+  const queryText =
+    "SELECT a.id, a.name, a.surname, SUM(s.likes) as likes" +
+    " FROM artist AS a" +
+    ' INNER JOIN "artist-song-produce" AS asp on a.id = asp.artistid' +
+    " INNER JOIN song AS s on asp.songid = s.id" +
+    " GROUP BY a.id" +
+    " ORDER BY likes DESC;";
+
   const result = await db.queryP(queryText);
   const { response, error } = result;
   if (error) {
@@ -79,7 +86,7 @@ const getArtist = async (id) => {
   }
 
   return {
-    song: artist,
+    artist,
     message,
   };
 };
