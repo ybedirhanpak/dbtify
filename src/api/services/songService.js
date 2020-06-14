@@ -1,14 +1,39 @@
 import db from "../../database";
 
-const createSong = async (title, albumID) => {
+const createSong = async (title, albumID, producerIDs) => {
   console.log("** CREATE SONG **");
   const queryText =
-    "INSERT INTO song(title,albumID,likes)" + " VALUES($1,$2,$3);";
+    "INSERT INTO song(title,albumID,likes)" +
+    " VALUES($1,$2,$3)" +
+    " RETURNING id,title,albumID,likes;";
   const result = await db.queryP(queryText, [title, albumID, 0]);
+  const { response, error } = result;
+  let errorArtistSongProduce;
+  if (response && response.rows) {
+    const song = result.response.rows[0];
+    const queryText =
+      'INSERT INTO "artist-song-produce"(artistID,songID)' + " VALUES($1,$2);";
+    const promises = producerIDs.map((producerID) => {
+      return db.queryP(queryText, [producerID, song.id]);
+    });
 
+    const results = await Promise.all(promises);
+    console.log(results);
+    results.forEach((result) => {
+      if (result.error) {
+        errorArtistSongProduce = result.error;
+      }
+    });
+  }
+  if (errorArtistSongProduce) {
+    return {
+      message: "Song cannot be created",
+      error: errorArtistSongProduce.stack,
+    };
+  }
   return {
-    message: result.response ? "Song created." : "Song cannot be created",
-    error: result.error ? result.error.stack : undefined,
+    message: response ? "Song created." : "Song cannot be created",
+    error: error ? error.stack : undefined,
   };
 };
 

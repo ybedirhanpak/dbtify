@@ -6,8 +6,8 @@ const route = Router();
 
 route.post("/create", async (req, res) => {
   try {
-    const { title, albumID } = req.body;
-    const result = await songService.createSong(title, albumID);
+    const { title, albumID, producerIDs } = req.body;
+    const result = await songService.createSong(title, albumID, producerIDs);
     if (result.error) {
       res.status(400).send(result);
     } else {

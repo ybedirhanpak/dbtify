@@ -71,9 +71,63 @@ const createSongTable = async () => {
   };
 };
 
+const createListenerSongLikeTable = async () => {
+  console.log("** CREATE LISTENER_SONG_LIKE TABLE **");
+  const queryText =
+    'CREATE TABLE "listener-song-like"(' +
+    "ID serial PRIMARY KEY," +
+    "listenerID integer NOT NULL REFERENCES listener (id) ON DELETE CASCADE," +
+    "songID integer NOT NULL REFERENCES song (id) ON DELETE CASCADE" +
+    ");";
+  const result = await db.queryP(queryText);
+  return {
+    message: result.response
+      ? "Listener-Song-Like table created."
+      : "Listener-Song-Like table cannot be created. ( Check error logs )",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
+const createListenerAlbumLikeTable = async () => {
+  console.log("** CREATE LISTENER_ALBUM_LIKE TABLE **");
+  const queryText =
+    'CREATE TABLE "listener-album-like"(' +
+    "ID serial PRIMARY KEY," +
+    "listenerID integer NOT NULL REFERENCES listener (id) ON DELETE CASCADE," +
+    "albumID integer NOT NULL REFERENCES album (id) ON DELETE CASCADE" +
+    ");";
+  const result = await db.queryP(queryText);
+  return {
+    message: result.response
+      ? "Listener-Album-Like table created."
+      : "Listener-Album-Like table cannot be created. ( Check error logs )",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
+const createArtistSongProduceTable = async () => {
+  console.log("** CREATE ARTIST_SONG_PRODUCE TABLE **");
+  const queryText =
+    'CREATE TABLE "artist-song-produce"(' +
+    "ID serial PRIMARY KEY," +
+    "artistID integer NOT NULL REFERENCES artist (id) ON DELETE CASCADE," +
+    "songID integer NOT NULL REFERENCES song (id) ON DELETE CASCADE" +
+    ");";
+  const result = await db.queryP(queryText);
+  return {
+    message: result.response
+      ? "Artist-Song-Produce table created."
+      : "Artist-Song-Produce table cannot be created. ( Check error logs )",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
 export default {
   createListenerTable,
   createArtistTable,
   createAlbumTable,
   createSongTable,
+  createListenerSongLikeTable,
+  createListenerAlbumLikeTable,
+  createArtistSongProduceTable,
 };

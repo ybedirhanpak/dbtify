@@ -9,11 +9,18 @@ route.get("/", async (req, res) => {
     const artist = await startService.createArtistTable();
     const album = await startService.createAlbumTable();
     const song = await startService.createSongTable();
+    const listener_song_like = await startService.createListenerSongLikeTable();
+    const listener_album_like = await startService.createListenerAlbumLikeTable();
+    const artist_song_produce = await startService.createArtistSongProduceTable();
+
     res.send({
       listener,
       artist,
       album,
       song,
+      listener_song_like,
+      listener_album_like,
+      artist_song_produce,
     });
   } catch (error) {
     res.status(500).send(errors.InternalServerError(error));
