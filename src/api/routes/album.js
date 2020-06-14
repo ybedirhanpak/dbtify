@@ -83,7 +83,7 @@ route.post("/delete/:id", async (req, res) => {
 route.get("/getSongs/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await songService.getSongsWithAlbum(id);
+    const result = await songService.getSongsOfAlbum(id);
     if (!result.songs || result.error) {
       res.status(400).send(result);
     } else {

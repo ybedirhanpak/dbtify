@@ -95,14 +95,14 @@ const deleteSong = async (songID) => {
   };
 };
 
-const getSongsOfArtist = async (songID) => {
+const getSongsOfArtist = async (artistID) => {
   console.log("** GET ALL SONGS OF ARTIST **");
   const queryText =
     "SELECT song.id, title, likes, albumid" +
     ' FROM "artist-song-produce"' +
     " INNER JOIN song ON song.id = songid" +
     " WHERE artistid = $1;";
-  const result = await db.queryP(queryText, [songID]);
+  const result = await db.queryP(queryText, [artistID]);
   const { response, error } = result;
   if (error) {
     return {
@@ -117,10 +117,10 @@ const getSongsOfArtist = async (songID) => {
   };
 };
 
-const getSongsWithAlbum = async (songID) => {
-  console.log("** GET ALL SONGS WITH ALBUM **");
+const getSongsOfAlbum = async (albumID) => {
+  console.log("** GET ALL SONGS OF ALBUM **");
   const queryText = "SELECT * FROM song" + " WHERE albumid = $1";
-  const result = await db.queryP(queryText, [songID]);
+  const result = await db.queryP(queryText, [albumID]);
   const { response, error } = result;
   if (error) {
     return {
@@ -173,6 +173,28 @@ const incrementLikeInAlbum = async (albumID, listenerID) => {
   };
 };
 
+const getLikedSongsOfListener = async (listenerID) => {
+  console.log("** GET ALL SONGS OF LISTENER LIKE **");
+  const queryText =
+    "SELECT s.id, s.title, s.likes, s.albumid" +
+    ' FROM "listener-song-like" AS lsl' +
+    " INNER JOIN song AS s ON s.id = lsl.songid" +
+    " WHERE listenerid = $1;";
+  const result = await db.queryP(queryText, [listenerID]);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Songs cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows ? "Songs returned." : "Songs not found";
+  return {
+    songs: response.rows,
+    message,
+  };
+};
+
 export default {
   createSong,
   getSong,
@@ -180,7 +202,8 @@ export default {
   updateSong,
   deleteSong,
   getSongsOfArtist,
-  getSongsWithAlbum,
+  getSongsOfAlbum,
   incrementLike,
   incrementLikeInAlbum,
+  getLikedSongsOfListener,
 };

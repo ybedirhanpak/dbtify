@@ -16,8 +16,8 @@ const createListener = async (username, email) => {
   };
 };
 
-const getListener = async (username, email) => {
-  console.log("** GET LISTENER **");
+const login = async (username, email) => {
+  console.log("** LOGIN **");
   const queryText =
     "SELECT * FROM listener" + ' WHERE username = $1 AND "e-mail" = $2;';
   const result = await db.queryP(queryText, [username, email]);
@@ -31,6 +31,55 @@ const getListener = async (username, email) => {
   let message = response.rows[0] ? "Listener returned." : "Listener not found";
   return {
     listener: response.rows[0],
+    message,
+  };
+};
+
+const getListener = async (listenerID) => {
+  console.log("** GET LISTENER **");
+  const queryText = "SELECT * FROM listener" + " WHERE id = $1";
+  const result = await db.queryP(queryText, [listenerID]);
+  console.log(result);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Listener cannot be returned",
+      error: error.stack,
+    };
+  }
+
+  const listener = response.rows[0];
+  let message = "Listener not found";
+  if (listener) {
+    const likedSongsResult = await songService.getLikedSongsOfListener(
+      listenerID
+    );
+    console.log(likedSongsResult);
+    if (likedSongsResult.error) {
+      return {
+        message: likedSongsResult.message,
+        error: likedSongsResult.error,
+      };
+    }
+
+    const likedAlbumsResult = await albumService.getLikedAlbumsOfListener(
+      listenerID
+    );
+    console.log(likedAlbumsResult);
+    if (likedAlbumsResult.error) {
+      return {
+        message: likedAlbumsResult.message,
+        error: likedAlbumsResult.error,
+      };
+    }
+
+    listener.likedSongs = likedSongsResult.songs;
+    listener.likedAlbums = likedAlbumsResult.albums;
+    message = "Listener returned.";
+  }
+
+  return {
+    listener: listener,
     message,
   };
 };
@@ -131,7 +180,7 @@ const likeAlbum = async (listenerID, albumID) => {
       error: albumLikeResult.error,
     };
   }
-  console.log(albumLikeResult);
+
   // Incremenet likes of songs
   const songLikeResult = await songService.incrementLikeInAlbum(
     albumID,
@@ -143,7 +192,6 @@ const likeAlbum = async (listenerID, albumID) => {
       error: songLikeResult.error,
     };
   }
-  console.log(songLikeResult);
 
   // insert into listener-song-like
   const listenerSongLikeResult = await createListenerSongLikeForAlbum(
@@ -156,12 +204,10 @@ const likeAlbum = async (listenerID, albumID) => {
       error: listenerSongLikeResult.error,
     };
   }
-  console.log(result);
 
   // insert into listener-album-like
   const result = await createListenerAlbumLike(listenerID, albumID);
 
-  console.log(result);
   return {
     message: result.message,
     error: result.error,
@@ -170,6 +216,7 @@ const likeAlbum = async (listenerID, albumID) => {
 
 export default {
   createListener,
+  login,
   getListener,
   getAllListeners,
   likeSong,

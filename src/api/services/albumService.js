@@ -107,6 +107,28 @@ const incrementLike = async (albumID, listenerID) => {
   };
 };
 
+const getLikedAlbumsOfListener = async (listenerID) => {
+  console.log("** GET ALL ALBUMS OF LISTENER LIKE **");
+  const queryText =
+    "SELECT a.id, a.title, a.genre, a.likes" +
+    ' FROM "listener-album-like" AS lal' +
+    " INNER JOIN album AS a ON a.id = lal.albumid" +
+    " WHERE listenerid = $1;";
+  const result = await db.queryP(queryText, [listenerID]);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Albums cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows ? "Albums returned." : "Albums not found";
+  return {
+    albums: response.rows,
+    message,
+  };
+};
+
 export default {
   createAlbum,
   getAlbum,
@@ -115,4 +137,5 @@ export default {
   deleteAlbum,
   getAlbumsOfArtist,
   incrementLike,
+  getLikedAlbumsOfListener,
 };

@@ -22,7 +22,22 @@ route.post("/create", async (req, res) => {
 route.post("/login", async (req, res) => {
   try {
     const { username, email } = req.body;
-    const result = await listenerService.getListener(username, email);
+    const result = await listenerService.login(username, email);
+    if (!result.listener || result.error) {
+      res.status(400).send(result);
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errors.InternalServerError(error));
+  }
+});
+
+route.get("/get/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await listenerService.getListener(id);
     if (!result.listener || result.error) {
       res.status(400).send(result);
     } else {
