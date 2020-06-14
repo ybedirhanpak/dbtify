@@ -64,14 +64,14 @@ const getArtist = async (id) => {
   const artist = response.rows[0];
   const message = artist ? "Artist returned." : "Artist not found";
 
-  const albumResult = await albumService.getAlbumsWithArtist(id);
+  const albumResult = await albumService.getAlbumsOfArtist(id);
   if (!albumResult.error) {
     artist.albums = albumResult.albums;
   } else {
     console.log(albumResult.error);
   }
 
-  const songResult = await songService.getSongsWithArtist(id);
+  const songResult = await songService.getSongsOfArtist(id);
   if (!songResult.error) {
     artist.songs = songResult.songs;
   } else {
@@ -84,8 +84,29 @@ const getArtist = async (id) => {
   };
 };
 
+const getArtistsOfSong = async (id) => {
+  console.log("** GET ARTISTS OF SONG **");
+  const queryText =
+    "SELECT artistid" + ' FROM "artist-song-produce"' + "WHERE songid = $1;";
+  const result = await db.queryP(queryText, [id]);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Artists cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows ? "Artists returned." : "Artists not found";
+  return {
+    artists: response.rows,
+    message,
+  };
+};
+
 export default {
   createArtist,
-  getArtist,
+  login,
   getAllArtists,
+  getArtist,
+  getArtistsOfSong,
 };

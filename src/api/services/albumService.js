@@ -71,8 +71,8 @@ const deleteAlbum = async (id) => {
   };
 };
 
-const getAlbumsWithArtist = async (id) => {
-  console.log("** GET ALL ALBUMS WITH ARTIST **");
+const getAlbumsOfArtist = async (id) => {
+  console.log("** GET ALL ALBUMS OF ARTIST **");
   const queryText = "SELECT * FROM album" + " WHERE artistid = $1";
   const result = await db.queryP(queryText, [id]);
   const { response, error } = result;
@@ -95,5 +95,5 @@ export default {
   getAllAlbums,
   updateAlbum,
   deleteAlbum,
-  getAlbumsWithArtist,
+  getAlbumsOfArtist,
 };

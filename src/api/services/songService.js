@@ -95,10 +95,10 @@ const deleteSong = async (id) => {
   };
 };
 
-const getSongsWithArtist = async (id) => {
-  console.log("** GET ALL SONGS WITH ARTIST **");
+const getSongsOfArtist = async (id) => {
+  console.log("** GET ALL SONGS OF ARTIST **");
   const queryText =
-    "SELECT song.id, title, likes, albumid, artistid" +
+    "SELECT song.id, title, likes, albumid" +
     ' FROM "artist-song-produce"' +
     " INNER JOIN song ON song.id = songid" +
     " WHERE artistid = $1;";
@@ -141,6 +141,6 @@ export default {
   getAllSongs,
   updateSong,
   deleteSong,
-  getSongsWithArtist,
+  getSongsOfArtist,
   getSongsWithAlbum,
 };
