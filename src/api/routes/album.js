@@ -48,4 +48,35 @@ route.get("/getAll", async (req, res) => {
   }
 });
 
+route.post("/update/:id", async (req, res) => {
+  try {
+    const { genre, title } = req.body;
+    const { id } = req.params;
+    const result = await albumService.updateAlbum(id, genre, title);
+    if (result.error) {
+      res.status(400).send(result);
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errors.InternalServerError(error));
+  }
+});
+
+route.post("/delete/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await albumService.deleteAlbum(id);
+    if (result.error) {
+      res.status(400).send(result);
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errors.InternalServerError(error));
+  }
+});
+
 export default route;

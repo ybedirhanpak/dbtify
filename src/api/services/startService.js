@@ -60,7 +60,7 @@ const createSongTable = async () => {
     "ID serial PRIMARY KEY," +
     "title VARCHAR(128) NOT NULL," +
     "likes integer NOT NULL," +
-    "albumID integer NOT NULL REFERENCES album (id)" +
+    "albumID integer NOT NULL REFERENCES album (id) ON DELETE CASCADE" +
     ");";
   const result = await db.queryP(queryText);
   return {

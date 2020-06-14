@@ -48,8 +48,33 @@ const getAllAlbums = async () => {
   };
 };
 
+const updateAlbum = async (id, genre, title) => {
+  console.log("** UPDATE ALBUM **");
+  const queryText =
+    "UPDATE album" + " SET genre = $2, title = $3 " + " WHERE id = $1";
+  const result = await db.queryP(queryText, [id, genre, title]);
+
+  return {
+    message: result.response ? "Album updated." : "Album cannot be updated",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
+const deleteAlbum = async (id) => {
+  console.log("** DELETE ALBUM **");
+  const queryText = "DELETE from album" + " WHERE id = $1";
+  const result = await db.queryP(queryText, [id]);
+
+  return {
+    message: result.response ? "Album deleted." : "Album cannot be deleted.",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
 export default {
   createAlbum,
   getAlbum,
   getAllAlbums,
+  updateAlbum,
+  deleteAlbum,
 };
