@@ -95,10 +95,33 @@ const deleteSong = async (id) => {
   };
 };
 
+const getSongsWithArtist = async (id) => {
+  console.log("** GET ALL SONGS WITH ARTIST **");
+  const queryText =
+    "SELECT song.id, title, likes, albumid, artistid" +
+    ' FROM "artist-song-produce"' +
+    " INNER JOIN song ON song.id = songid" +
+    " WHERE artistid = $1;";
+  const result = await db.queryP(queryText, [id]);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Songs cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows ? "Songs returned." : "Songs not found";
+  return {
+    songs: response.rows,
+    message,
+  };
+};
+
 export default {
   createSong,
   getSong,
   getAllSongs,
   updateSong,
   deleteSong,
+  getSongsWithArtist,
 };

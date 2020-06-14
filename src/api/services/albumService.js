@@ -71,10 +71,29 @@ const deleteAlbum = async (id) => {
   };
 };
 
+const getAlbumsWithArtist = async (id) => {
+  console.log("** GET ALL ALBUMS WITH ARTIST **");
+  const queryText = "SELECT * FROM album" + " WHERE artistid = $1";
+  const result = await db.queryP(queryText, [id]);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Albums cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows ? "Albums returned." : "Albums not found";
+  return {
+    albums: response.rows,
+    message,
+  };
+};
+
 export default {
   createAlbum,
   getAlbum,
   getAllAlbums,
   updateAlbum,
   deleteAlbum,
+  getAlbumsWithArtist,
 };

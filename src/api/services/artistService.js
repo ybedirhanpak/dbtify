@@ -1,4 +1,6 @@
 import db from "../../database";
+import albumService from "./albumService";
+import songService from "./songService";
 
 const createArtist = async (name, surname) => {
   console.log("** CREATE ARTIST **");
@@ -11,7 +13,7 @@ const createArtist = async (name, surname) => {
   };
 };
 
-const getArtist = async (name, surname) => {
+const login = async (name, surname) => {
   console.log("** GET ARTIST **");
   const queryText =
     "SELECT * FROM artist" + " WHERE name = $1 AND surname = $2;";
@@ -44,6 +46,40 @@ const getAllArtists = async () => {
   let message = response.rows ? "Artists returned." : "Artists not found";
   return {
     artists: response.rows,
+    message,
+  };
+};
+
+const getArtist = async (id) => {
+  console.log("** GET ARTIST **");
+  const queryText = "SELECT * FROM artist" + " WHERE id = $1";
+  const result = await db.queryP(queryText, [id]);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Artist cannot be returned",
+      error: error.stack,
+    };
+  }
+  const artist = response.rows[0];
+  const message = artist ? "Artist returned." : "Artist not found";
+
+  const albumResult = await albumService.getAlbumsWithArtist(id);
+  if (!albumResult.error) {
+    artist.albums = albumResult.albums;
+  } else {
+    console.log(albumResult.error);
+  }
+
+  const songResult = await songService.getSongsWithArtist(id);
+  if (!songResult.error) {
+    artist.songs = songResult.songs;
+  } else {
+    console.log(songResult.error);
+  }
+
+  return {
+    song: artist,
     message,
   };
 };

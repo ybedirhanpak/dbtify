@@ -22,7 +22,7 @@ route.post("/create", async (req, res) => {
 route.post("/login", async (req, res) => {
   try {
     const { name, surname } = req.body;
-    const result = await artistService.getArtist(name, surname);
+    const result = await artistService.login(name, surname);
     if (!result.artist || result.error) {
       res.status(400).send(result);
     } else {
@@ -37,6 +37,21 @@ route.post("/login", async (req, res) => {
 route.get("/getAll", async (req, res) => {
   try {
     const result = await artistService.getAllArtists();
+    if (!result.artists || result.error) {
+      res.status(400).send(result);
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errors.InternalServerError(error));
+  }
+});
+
+route.get("/get/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await artistService.getArtist(id);
     if (!result.artists || result.error) {
       res.status(400).send(result);
     } else {
