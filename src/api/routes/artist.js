@@ -63,4 +63,19 @@ route.get("/get/:id", async (req, res) => {
   }
 });
 
+route.post("/getWorkedTogether", async (req, res) => {
+  try {
+    const { name, surname } = req.body;
+    const result = await artistService.getArtistsWorkedTogether(name, surname);
+    if (!result.artists || result.error) {
+      res.status(400).send(result);
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(errors.InternalServerError(error));
+  }
+});
+
 export default route;

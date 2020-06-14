@@ -110,10 +110,38 @@ const getArtistsOfSong = async (id) => {
   };
 };
 
+const getArtistsWorkedTogether = async (name, surname) => {
+  console.log("** GET ARTISTS WORKED TOGETHER **");
+  const queryText =
+    "SELECT a.id, a.name, a.surname" +
+    " FROM artist as a" +
+    ' INNER JOIN "artist-song-produce" as asp on asp.artistid = a.id' +
+    " WHERE (a.name <> $1 OR a.surname <> $2) AND songid IN (" +
+    "	SELECT songid" +
+    "	FROM artist as a" +
+    ' INNER JOIN "artist-song-produce" as asp on asp.artistid = a.id' +
+    "	WHERE a.name = $1 AND a.surname = $2" +
+    " );";
+  const result = await db.queryP(queryText, [name, surname]);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Artists cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows ? "Artists returned." : "Artists not found";
+  return {
+    artists: response.rows,
+    message,
+  };
+};
+
 export default {
   createArtist,
   login,
   getAllArtists,
   getArtist,
   getArtistsOfSong,
+  getArtistsWorkedTogether,
 };
