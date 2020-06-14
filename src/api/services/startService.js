@@ -35,24 +35,6 @@ const createArtistTable = async () => {
   };
 };
 
-const createSongTable = async () => {
-  console.log("** CREATE SONG TABLE **");
-  const queryText =
-    "CREATE TABLE song(" +
-    "ID serial PRIMARY KEY," +
-    "title VARCHAR(128) NOT NULL," +
-    "albumID integer NOT NULL," +
-    "likes integer NOT NULL" +
-    ");";
-  const result = await db.queryP(queryText);
-  return {
-    message: result.response
-      ? "Song table created."
-      : "Song table cannot be created. ( Check error logs )",
-    error: result.error ? result.error.stack : undefined,
-  };
-};
-
 const createAlbumTable = async () => {
   console.log("** CREATE ALBUM TABLE **");
   const queryText =
@@ -60,7 +42,7 @@ const createAlbumTable = async () => {
     "ID serial PRIMARY KEY," +
     "title VARCHAR(128) NOT NULL," +
     "genre VARCHAR(128) NOT NULL," +
-    "artistID integer NOT NULL" +
+    "artistID integer NOT NULL REFERENCES artist (id)" +
     ");";
   const result = await db.queryP(queryText);
   return {
@@ -71,9 +53,27 @@ const createAlbumTable = async () => {
   };
 };
 
+const createSongTable = async () => {
+  console.log("** CREATE SONG TABLE **");
+  const queryText =
+    "CREATE TABLE song(" +
+    "ID serial PRIMARY KEY," +
+    "title VARCHAR(128) NOT NULL," +
+    "likes integer NOT NULL," +
+    "albumID integer NOT NULL REFERENCES album (id)" +
+    ");";
+  const result = await db.queryP(queryText);
+  return {
+    message: result.response
+      ? "Song table created."
+      : "Song table cannot be created. ( Check error logs )",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
 export default {
   createListenerTable,
   createArtistTable,
-  createSongTable,
   createAlbumTable,
+  createSongTable,
 };
