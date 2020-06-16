@@ -136,9 +136,10 @@ const incrementLike = async (albumID, listenerID) => {
 const getLikedAlbumsOfListener = async (listenerID) => {
   console.log("** GET ALL ALBUMS OF LISTENER LIKE **");
   const queryText =
-    "SELECT a.id, a.title, a.genre, a.likes" +
+    "SELECT a.id, a.title, a.genre, a.likes, a.artistid, (art.name || ' ' || art.surname) AS artist" +
     ' FROM "listener-album-like" AS lal' +
     " INNER JOIN album AS a ON a.id = lal.albumid" +
+    " INNER JOIN artist AS art ON art.id = a.artistid" +
     " WHERE listenerid = $1;";
   const result = await db.queryP(queryText, [listenerID]);
   const { response, error } = result;

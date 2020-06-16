@@ -19,7 +19,8 @@ const createListener = async (username, email) => {
 const login = async (username, email) => {
   console.log("** LOGIN **");
   const queryText =
-    "SELECT * FROM listener" + ' WHERE username = $1 AND "e-mail" = $2;';
+    'SELECT id, username, "e-mail" as email FROM listener' +
+    ' WHERE username = $1 AND "e-mail" = $2;';
   const result = await db.queryP(queryText, [username, email]);
   const { response, error } = result;
   if (error) {
@@ -28,18 +29,47 @@ const login = async (username, email) => {
       error: error.stack,
     };
   }
-  let message = response.rows[0]
-    ? "Listener Login Successful."
-    : "Listener not found";
+  const listener = response.rows[0];
+  let message = "Listener not found";
+
+  if (listener) {
+    const likedSongsResult = await songService.getLikedSongsOfListener(
+      listener.id
+    );
+    console.log(likedSongsResult);
+    if (likedSongsResult.error) {
+      return {
+        message: likedSongsResult.message,
+        error: likedSongsResult.error,
+      };
+    }
+
+    const likedAlbumsResult = await albumService.getLikedAlbumsOfListener(
+      listener.id
+    );
+    console.log(likedAlbumsResult);
+    if (likedAlbumsResult.error) {
+      return {
+        message: likedAlbumsResult.message,
+        error: likedAlbumsResult.error,
+      };
+    }
+
+    listener.likedSongs = likedSongsResult.songs;
+    listener.likedAlbums = likedAlbumsResult.albums;
+    message = "Listener returned.";
+  }
+
   return {
-    listener: response.rows[0],
+    listener: listener,
     message,
   };
 };
 
 const getListener = async (listenerID) => {
   console.log("** GET LISTENER **");
-  const queryText = "SELECT * FROM listener" + " WHERE id = $1";
+  const queryText =
+    'SELECT id, username, "e-mail" as email FROM listener' + " WHERE id = $1";
   const result = await db.queryP(queryText, [listenerID]);
   console.log(result);
   const { response, error } = result;
@@ -52,6 +82,7 @@ const getListener = async (listenerID) => {
 
   const listener = response.rows[0];
   let message = "Listener not found";
+
   if (listener) {
     const likedSongsResult = await songService.getLikedSongsOfListener(
       listenerID
@@ -88,7 +119,7 @@ const getListener = async (listenerID) => {
 
 const getAllListeners = async () => {
   console.log("** GET ALL LISTENERS **");
-  const queryText = "SELECT * FROM listener";
+  const queryText = 'SELECT id, username, "e-mail" as email FROM listener';
   const result = await db.queryP(queryText);
   const { response, error } = result;
   if (error) {

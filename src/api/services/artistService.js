@@ -95,20 +95,34 @@ const getArtist = async (id) => {
     };
   }
   const artist = response.rows[0];
-  const message = artist ? "Artist returned." : "Artist not found";
+  let message = "Artist not found";
 
-  const albumResult = await albumService.getAlbumsOfArtist(id);
-  if (!albumResult.error && artist) {
-    artist.albums = albumResult.albums;
-  } else {
-    console.log(albumResult.error);
-  }
+  if (artist) {
+    message = "Artist returned.";
 
-  const songResult = await songService.getSongsOfArtist(id);
-  if (!songResult.error && artist) {
-    artist.songs = songResult.songs;
-  } else {
-    console.log(songResult.error);
+    const albumResult = await albumService.getAlbumsOfArtist(id);
+    if (!albumResult.error) {
+      artist.albums = albumResult.albums;
+    } else {
+      console.log(albumResult.error);
+    }
+
+    const songResult = await songService.getSongsOfArtist(id);
+    if (!songResult.error) {
+      artist.songs = songResult.songs;
+    } else {
+      console.log(songResult.error);
+    }
+
+    const workedTogetherResult = await getArtistsWorkedTogether(
+      artist.name,
+      artist.surname
+    );
+    if (!workedTogetherResult.error) {
+      artist.workedTogether = workedTogetherResult.artists;
+    } else {
+      console.log(workedTogetherResult.error);
+    }
   }
 
   return {
@@ -120,7 +134,10 @@ const getArtist = async (id) => {
 const getArtistsOfSong = async (id) => {
   console.log("** GET ARTISTS OF SONG **");
   const queryText =
-    "SELECT artistid" + ' FROM "artist-song-produce"' + "WHERE songid = $1;";
+    "SELECT a.id, a.name, a.surname, (a.name || ' ' || a.surname) as title" +
+    ' FROM "artist-song-produce" AS asp' +
+    " INNER JOIN artist AS a ON asp.artistid = a.id" +
+    " WHERE songid = $1;";
   const result = await db.queryP(queryText, [id]);
   const { response, error } = result;
   if (error) {
@@ -139,15 +156,18 @@ const getArtistsOfSong = async (id) => {
 const getArtistsWorkedTogether = async (name, surname) => {
   console.log("** GET ARTISTS WORKED TOGETHER **");
   const queryText =
-    "SELECT a.id, a.name, a.surname" +
+    "SELECT a.id, a.name, a.surname, (a.name || ' ' || a.surname) as title," +
+    " COALESCE(SUM(s.likes),0) as likes" +
     " FROM artist as a" +
-    ' INNER JOIN "artist-song-produce" as asp on asp.artistid = a.id' +
+    ' LEFT JOIN "artist-song-produce" AS asp on a.id = asp.artistid' +
+    " LEFT JOIN song AS s on asp.songid = s.id" +
     " WHERE (a.name <> $1 OR a.surname <> $2) AND songid IN (" +
-    "	SELECT songid" +
-    "	FROM artist as a" +
-    ' INNER JOIN "artist-song-produce" as asp on asp.artistid = a.id' +
-    "	WHERE a.name = $1 AND a.surname = $2" +
-    " );";
+    "	 SELECT songid" +
+    "	 FROM artist as a" +
+    '  INNER JOIN "artist-song-produce" as asp on asp.artistid = a.id' +
+    "	 WHERE a.name = $1 AND a.surname = $2" +
+    " )" +
+    " GROUP BY a.id;";
   const result = await db.queryP(queryText, [name, surname]);
   const { response, error } = result;
   if (error) {

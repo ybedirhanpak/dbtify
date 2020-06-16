@@ -1,4 +1,5 @@
 import db from "../../database";
+import artistService from "./artistService";
 
 const createSong = async (title, albumID, producerIDs) => {
   console.log("** CREATE SONG **");
@@ -52,9 +53,19 @@ const getSong = async (songID) => {
       error: error.stack,
     };
   }
-  let message = response.rows[0] ? "Song returned." : "Song not found";
+  const song = response.rows[0];
+  let message = "Song not found";
+  if (song) {
+    message = "Song returned.";
+    const artistsResult = await artistService.getArtistsOfSong(song.id);
+    if (artistsResult.error) {
+      console.log(artistsResult.error);
+    } else {
+      song.producers = artistsResult.artists;
+    }
+  }
   return {
-    song: response.rows[0],
+    song: song,
     message,
   };
 };
@@ -212,9 +223,10 @@ const incrementLikeInAlbum = async (albumID, listenerID) => {
 const getLikedSongsOfListener = async (listenerID) => {
   console.log("** GET ALL SONGS OF LISTENER LIKE **");
   const queryText =
-    "SELECT s.id, s.title, s.likes, s.albumid" +
+    "SELECT s.id, s.title, s.likes, s.albumid, a.title as album, a.genre" +
     ' FROM "listener-song-like" AS lsl' +
     " INNER JOIN song AS s ON s.id = lsl.songid" +
+    " INNER JOIN album AS a ON s.albumid = a.id" +
     " WHERE listenerid = $1" +
     " ORDER BY s.likes DESC;";
   const result = await db.queryP(queryText, [listenerID]);
