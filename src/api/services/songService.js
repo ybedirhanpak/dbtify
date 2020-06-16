@@ -98,7 +98,7 @@ const searchSongs = async (keyword) => {
     "SELECT s.id, s.title, s.likes, genre, a.title as album, albumid" +
     " FROM song AS s" +
     " INNER JOIN album AS a on a.id = s.albumid" +
-    ` WHERE s.title LIKE ('%${keyword}%');`;
+    ` WHERE s.title ILIKE ('%${keyword}%');`;
   const result = await db.queryP(queryText);
   const { response, error } = result;
   if (error) {
