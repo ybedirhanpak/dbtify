@@ -126,6 +126,42 @@ const createArtistSongProduceTable = async () => {
   };
 };
 
+const createGetWorkedTogetherFunc = async () => {
+  console.log("** CREATE GET WORKED TOGETHER FUNC **");
+  const queryText = `CREATE TYPE artist_enhanced AS (
+    id int,
+    name varchar,
+    surname varchar,
+    title varchar,
+    likes bigint
+  );
+  
+  CREATE FUNCTION get_worked_together("name" varchar, "surname" varchar)
+    RETURNS setof artist_enhanced AS
+  $$
+  SELECT a.id, a.name, a.surname, (a.name || ' ' || a.surname) as title, COALESCE(SUM(s.likes),0) as likes
+  FROM artist as a
+  LEFT JOIN "artist-song-produce" AS asp on a.id = asp.artistid
+  LEFT JOIN song AS s on asp.songid = s.id
+  WHERE (a.name <> $1 OR a.surname <> $2) AND songid IN (
+    SELECT songid
+    FROM artist as a
+    INNER JOIN "artist-song-produce" as asp on asp.artistid = a.id
+    WHERE a.name = $1 AND a.surname = $2
+  )
+  GROUP BY a.id;
+  $$
+  language sql;`;
+
+  const result = await db.queryP(queryText);
+  return {
+    message: result.response
+      ? "Get Worked Together Func created."
+      : "Get Worked Together Func cannot be created. ( Check error logs )",
+    error: result.error ? result.error.stack : undefined,
+  };
+};
+
 export default {
   createListenerTable,
   createArtistTable,
@@ -134,4 +170,5 @@ export default {
   createListenerSongLikeTable,
   createListenerAlbumLikeTable,
   createArtistSongProduceTable,
+  createGetWorkedTogetherFunc,
 };

@@ -155,19 +155,7 @@ const getArtistsOfSong = async (id) => {
 
 const getArtistsWorkedTogether = async (name, surname) => {
   console.log("** GET ARTISTS WORKED TOGETHER **");
-  const queryText =
-    "SELECT a.id, a.name, a.surname, (a.name || ' ' || a.surname) as title," +
-    " COALESCE(SUM(s.likes),0) as likes" +
-    " FROM artist as a" +
-    ' LEFT JOIN "artist-song-produce" AS asp on a.id = asp.artistid' +
-    " LEFT JOIN song AS s on asp.songid = s.id" +
-    " WHERE (a.name <> $1 OR a.surname <> $2) AND songid IN (" +
-    "	 SELECT songid" +
-    "	 FROM artist as a" +
-    '  INNER JOIN "artist-song-produce" as asp on asp.artistid = a.id' +
-    "	 WHERE a.name = $1 AND a.surname = $2" +
-    " )" +
-    " GROUP BY a.id;";
+  const queryText = `SELECT * FROM get_worked_together($1, $2);`;
   const result = await db.queryP(queryText, [name, surname]);
   const { response, error } = result;
   if (error) {
