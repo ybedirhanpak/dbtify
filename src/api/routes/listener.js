@@ -4,7 +4,7 @@ import errors from "../helpers/errors";
 
 const route = Router();
 
-route.post("/create", async (req, res) => {
+route.post("/register", async (req, res) => {
   try {
     const { username, email } = req.body;
     const result = await listenerService.createListener(username, email);

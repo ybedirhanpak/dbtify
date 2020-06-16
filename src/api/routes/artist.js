@@ -4,7 +4,7 @@ import errors from "../helpers/errors";
 
 const route = Router();
 
-route.post("/create", async (req, res) => {
+route.post("/register", async (req, res) => {
   try {
     const { name, surname } = req.body;
     const result = await artistService.createArtist(name, surname);
@@ -52,10 +52,10 @@ route.get("/get/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const result = await artistService.getArtist(id);
-    if (!result.artists || result.error) {
-      res.status(400).send(result);
-    } else {
+    if (result.artist) {
       res.send(result);
+    } else {
+      res.status(400).send(result);
     }
   } catch (error) {
     console.log(error);

@@ -28,7 +28,9 @@ const login = async (username, email) => {
       error: error.stack,
     };
   }
-  let message = response.rows[0] ? "Listener returned." : "Listener not found";
+  let message = response.rows[0]
+    ? "Listener Login Successful."
+    : "Listener not found";
   return {
     listener: response.rows[0],
     message,

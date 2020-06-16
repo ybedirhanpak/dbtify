@@ -39,7 +39,11 @@ const createSong = async (title, albumID, producerIDs) => {
 
 const getSong = async (songID) => {
   console.log("** GET SONG **");
-  const queryText = "SELECT * FROM song" + " WHERE id = $1";
+  const queryText =
+    "SELECT s.id, s.title, s.likes, s.albumid, a.title AS album, genre" +
+    " FROM song AS s" +
+    " INNER JOIN album AS a on a.id = s.albumid" +
+    " WHERE s.id = $1;";
   const result = await db.queryP(queryText, [songID]);
   const { response, error } = result;
   if (error) {
@@ -58,9 +62,10 @@ const getSong = async (songID) => {
 const getAllSongs = async () => {
   console.log("** GET ALL SONGS **");
   const queryText =
-    "SELECT s.id, s.title, s.likes, genre, a.title as album" +
+    "SELECT s.id, s.title, s.likes, genre, a.title as album, albumid" +
     " FROM song AS s" +
-    " INNER JOIN album AS a on a.id = s.albumid;";
+    " INNER JOIN album AS a on a.id = s.albumid" +
+    " ORDER BY s.likes DESC;";
   const result = await db.queryP(queryText);
   const { response, error } = result;
   if (error) {
@@ -79,7 +84,7 @@ const getAllSongs = async () => {
 const searchSongs = async (keyword) => {
   console.log("** GET ALL SONGS **");
   const queryText =
-    "SELECT s.id, s.title, s.likes, genre, a.title as album" +
+    "SELECT s.id, s.title, s.likes, genre, a.title as album, albumid" +
     " FROM song AS s" +
     " INNER JOIN album AS a on a.id = s.albumid" +
     ` WHERE s.title LIKE ('%${keyword}%');`;
@@ -123,11 +128,12 @@ const deleteSong = async (songID) => {
 const getSongsOfArtist = async (artistID) => {
   console.log("** GET ALL SONGS OF ARTIST **");
   const queryText =
-    "SELECT song.id, title, likes, albumid" +
-    ' FROM "artist-song-produce"' +
-    " INNER JOIN song ON song.id = songid" +
-    " WHERE artistid = $1" +
-    " ORDER BY song.likes DESC;";
+    "SELECT s.id, s.title, s.likes, s.albumid, a.genre, a.title as album" +
+    " FROM song AS s" +
+    ' INNER JOIN "artist-song-produce" AS asp ON asp.songid = s.id' +
+    " INNER JOIN album AS a ON s.albumid = a.id" +
+    " WHERE asp.artistid = $1" +
+    " ORDER BY s.likes DESC;";
   const result = await db.queryP(queryText, [artistID]);
   const { response, error } = result;
   if (error) {
@@ -145,7 +151,11 @@ const getSongsOfArtist = async (artistID) => {
 
 const getSongsOfAlbum = async (albumID) => {
   console.log("** GET ALL SONGS OF ALBUM **");
-  const queryText = "SELECT * FROM song" + " WHERE albumid = $1";
+  const queryText =
+    "SELECT s.id, s.title, s.likes, s.albumid, a.genre, a.title as album" +
+    " FROM song AS s" +
+    " INNER JOIN album AS a ON s.albumid = a.id" +
+    " WHERE albumid = $1";
   const result = await db.queryP(queryText, [albumID]);
   const { response, error } = result;
   if (error) {
@@ -205,8 +215,33 @@ const getLikedSongsOfListener = async (listenerID) => {
     "SELECT s.id, s.title, s.likes, s.albumid" +
     ' FROM "listener-song-like" AS lsl' +
     " INNER JOIN song AS s ON s.id = lsl.songid" +
-    " WHERE listenerid = $1;";
+    " WHERE listenerid = $1" +
+    " ORDER BY s.likes DESC;";
   const result = await db.queryP(queryText, [listenerID]);
+  const { response, error } = result;
+  if (error) {
+    return {
+      message: "Songs cannot be returned",
+      error: error.stack,
+    };
+  }
+  let message = response.rows ? "Songs returned." : "Songs not found";
+  return {
+    songs: response.rows,
+    message,
+  };
+};
+
+const getSongsOfGenre = async (genre) => {
+  console.log("** GET ALL SONGS OF GENRE **");
+  const queryText =
+    "SELECT s.id, s.title, s.likes, s.albumid, a.title AS album, genre" +
+    " FROM song AS s" +
+    " INNER JOIN album AS a on a.id = s.albumid" +
+    " WHERE genre = $1" +
+    " ORDER BY s.likes DESC;";
+
+  const result = await db.queryP(queryText, [genre]);
   const { response, error } = result;
   if (error) {
     return {
@@ -233,4 +268,5 @@ export default {
   incrementLikeInAlbum,
   getLikedSongsOfListener,
   searchSongs,
+  getSongsOfGenre,
 };

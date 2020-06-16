@@ -25,9 +25,27 @@ const login = async (name, surname) => {
       error: error.stack,
     };
   }
-  let message = response.rows[0] ? "Artist returned." : "Artist not found";
+  const artist = response.rows[0];
+  const message = artist ? "Artist returned." : "Artist not found";
+
+  if (artist) {
+    const albumResult = await albumService.getAlbumsOfArtist(artist.id);
+    if (!albumResult.error) {
+      artist.albums = albumResult.albums;
+    } else {
+      console.log(albumResult.error);
+    }
+
+    const songResult = await songService.getSongsOfArtist(artist.id);
+    if (!songResult.error) {
+      artist.songs = songResult.songs;
+    } else {
+      console.log(songResult.error);
+    }
+  }
+
   return {
-    artist: response.rows[0],
+    artist,
     message,
   };
 };
@@ -35,7 +53,8 @@ const login = async (name, surname) => {
 const getAllArtists = async () => {
   console.log("** GET ALL ARTISTS **");
   const queryText =
-    "SELECT a.id, a.name, a.surname, COALESCE(SUM(s.likes),0) as likes" +
+    "SELECT a.id, a.name, a.surname," +
+    " COALESCE(SUM(s.likes),0) as likes, (a.name || ' ' || a.surname) as title " +
     " FROM artist AS a" +
     ' LEFT JOIN "artist-song-produce" AS asp on a.id = asp.artistid' +
     " LEFT JOIN song AS s on asp.songid = s.id" +
@@ -59,7 +78,14 @@ const getAllArtists = async () => {
 
 const getArtist = async (id) => {
   console.log("** GET ARTIST **");
-  const queryText = "SELECT * FROM artist" + " WHERE id = $1";
+  const queryText =
+    "SELECT a.id, a.name, a.surname," +
+    " COALESCE(SUM(s.likes),0) as likes, (a.name || ' ' || a.surname) as title " +
+    " FROM artist AS a" +
+    ' LEFT JOIN "artist-song-produce" AS asp on a.id = asp.artistid' +
+    " LEFT JOIN song AS s on asp.songid = s.id" +
+    " WHERE a.id = $1" +
+    " GROUP BY a.id;";
   const result = await db.queryP(queryText, [id]);
   const { response, error } = result;
   if (error) {

@@ -1,4 +1,5 @@
 import db from "../../database";
+import songService from "./songService";
 
 const createAlbum = async (title, genre, artistID) => {
   console.log("** CREATE ALBUM **");
@@ -14,7 +15,11 @@ const createAlbum = async (title, genre, artistID) => {
 
 const getAlbum = async (id) => {
   console.log("** GET ALBUM **");
-  const queryText = "SELECT * FROM album" + " WHERE id = $1";
+  const queryText =
+    "SELECT a.id, a.title, a.genre, a.likes, a.artistid, (artist.name || ' ' || artist.surname) as artist" +
+    " FROM album AS a" +
+    " INNER JOIN artist ON a.artistid = artist.id" +
+    " WHERE a.id = $1";
   const result = await db.queryP(queryText, [id]);
   const { response, error } = result;
   if (error) {
@@ -23,16 +28,33 @@ const getAlbum = async (id) => {
       error: error.stack,
     };
   }
-  let message = response.rows[0] ? "Album returned." : "Album not found";
+  const album = response.rows[0];
+  let message = "Album not found";
+  if (album) {
+    message = "Album returned.";
+    const songsResult = await songService.getSongsOfAlbum(album.id);
+    if (songsResult.error) {
+      return {
+        message: songsResult.message,
+        error: songsResult.error,
+      };
+    }
+    album.songs = songsResult.songs;
+  }
+
   return {
-    album: response.rows[0],
+    album: album,
     message,
   };
 };
 
 const getAllAlbums = async () => {
   console.log("** GET ALL ALBUMS **");
-  const queryText = "SELECT * FROM album";
+  const queryText =
+    "SELECT a.id, a.title, a.genre, a.likes," +
+    " a.artistid, (art.name || ' ' || art.surname) as artist " +
+    " FROM album AS a" +
+    " INNER JOIN artist AS art on a.artistid = art.id;";
   const result = await db.queryP(queryText);
   const { response, error } = result;
   if (error) {
@@ -73,7 +95,11 @@ const deleteAlbum = async (id) => {
 
 const getAlbumsOfArtist = async (id) => {
   console.log("** GET ALL ALBUMS OF ARTIST **");
-  const queryText = "SELECT * FROM album" + " WHERE artistid = $1";
+  const queryText =
+    "SELECT a.id, a.title, a.genre, a.likes, a.artistid, (art.name || ' '  || art.surname) as artist" +
+    " FROM album AS a" +
+    " INNER JOIN artist AS art ON a.artistid = art.id" +
+    " WHERE artistid = $1;";
   const result = await db.queryP(queryText, [id]);
   const { response, error } = result;
   if (error) {
